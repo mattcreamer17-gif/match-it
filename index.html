@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>A read on where AI fits in Match IT's stack, and where it doesn't.</title>
+<meta name="description" content="What does Match IT actually match, and where in the stack is the LLM doing real work versus where a Postgres query would be faster?" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header" role="banner">
+  <div class="wrap header-inner">
+    <a href="#top" class="brand" aria-label="Match IT">
+      <svg class="brand-mark" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="22" r="5" fill="none" stroke="currentColor" stroke-width="2" />
+        <circle cx="32" cy="22" r="5" fill="none" stroke="currentColor" stroke-width="2" />
+        <line x1="17" y1="22" x2="27" y2="22" stroke="currentColor" stroke-width="2" />
+        <circle cx="22" cy="22" r="2" fill="var(--accent)" />
+      </svg>
+      <span class="brand-word">Match<span class="brand-word-dot">.</span>IT</span>
+    </a>
+    <span class="header-tag">
+      <span class="dot"></span>Prepared for eMerge Americas 2026, Booth SS36
+    </span>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="eyebrow-bar"></span>A note from a visitor</p>
+      <h1>A read on where AI fits in Match IT's stack, and where it doesn't.</h1>
+      <p class="lede">
+        Match IT is a Startup Spotlight at eMerge 2026, which means the team is moving fast and public signal is thin. That's normal for the stage. What matters at this booth is whether the matching logic is doing what the pitch deck says it's doing, and whether the LLM layer is earning its cost. Most early matching products ship semantic matching before the data schema supports it, and the debugging bill comes due a quarter later.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://calendly.com/thecro-eduba/30min" target="_blank" rel="noopener">
+          Book 30 minutes with Matt
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M3 8h9M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <span class="cta-note">Bring one match that fired badly and one you're proud of.</span>
+      </div>
+    </div>
+
+    <div class="hero-graphic" aria-hidden="true">
+      <svg viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="bg" cx="50%" cy="45%" r="60%">
+            <stop offset="0%" stop-color="#eef2fb" />
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="420" height="420" fill="url(#bg)" />
+        <!-- edges -->
+        <g stroke="#2D6CDF" stroke-opacity="0.35" stroke-width="1">
+          <line x1="90" y1="110" x2="210" y2="210" />
+          <line x1="320" y1="90" x2="210" y2="210" />
+          <line x1="60" y1="260" x2="210" y2="210" />
+          <line x1="340" y1="300" x2="210" y2="210" />
+          <line x1="180" y1="360" x2="210" y2="210" />
+          <line x1="90" y1="110" x2="320" y2="90" />
+          <line x1="60" y1="260" x2="180" y2="360" />
+          <line x1="340" y1="300" x2="180" y2="360" />
+        </g>
+        <!-- right cluster (accent) -->
+        <g stroke="#F25C54" stroke-opacity="0.45" stroke-width="1">
+          <line x1="320" y1="90" x2="340" y2="300" />
+          <line x1="320" y1="90" x2="210" y2="210" />
+        </g>
+        <!-- nodes -->
+        <g>
+          <circle cx="90" cy="110" r="8" fill="#ffffff" stroke="#2D6CDF" stroke-width="2" />
+          <circle cx="60" cy="260" r="6" fill="#ffffff" stroke="#2D6CDF" stroke-width="2" />
+          <circle cx="180" cy="360" r="7" fill="#ffffff" stroke="#2D6CDF" stroke-width="2" />
+          <circle cx="320" cy="90" r="7" fill="#F25C54" />
+          <circle cx="340" cy="300" r="6" fill="#ffffff" stroke="#F25C54" stroke-width="2" />
+          <circle cx="210" cy="210" r="14" fill="#12172A" />
+          <circle cx="210" cy="210" r="4" fill="#F25C54" />
+        </g>
+        <!-- labels -->
+        <g font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#1F2430">
+          <text x="102" y="104">supply</text>
+          <text x="72" y="254">rules</text>
+          <text x="192" y="376">scoring</text>
+          <text x="296" y="78" fill="#F25C54">LLM</text>
+          <text x="252" y="300">demand</text>
+          <text x="232" y="214" fill="#F4F6FA">match()</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="split">
+  <div class="wrap">
+    <div class="split-grid">
+      <div class="split-heading">
+        <p class="eyebrow"><span class="eyebrow-bar"></span>How we'd think about a matching stack</p>
+        <h2>60 / 30 / 10.</h2>
+        <p class="split-sub">Reframing the split gives a team three things at once. Lower cost, faster response times, and a matching engine that is actually debuggable when a recommendation looks wrong.</p>
+      </div>
+
+      <ol class="layers">
+        <li class="layer">
+          <div class="layer-head">
+            <span class="layer-pct">60%</span>
+            <span class="layer-tag">Traditional code and data</span>
+          </div>
+          <p>Filtering, scoring, ranking, eligibility, constraints. The part of the product that should not be touching a model at all.</p>
+        </li>
+        <li class="layer">
+          <div class="layer-head">
+            <span class="layer-pct">30%</span>
+            <span class="layer-tag">Rule-based logic</span>
+          </div>
+          <p>Business rules, tie-breakers, fairness constraints, boost rules. Deterministic, explainable, and cheap to run.</p>
+        </li>
+        <li class="layer layer-accent">
+          <div class="layer-head">
+            <span class="layer-pct">10%</span>
+            <span class="layer-tag">The layer that actually needs a model</span>
+          </div>
+          <p>The part where an LLM earns its keep. Smaller than the pitch deck suggests, and the piece that gets debugged first when a match looks wrong.</p>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<section class="proof">
+  <div class="wrap">
+    <p class="eyebrow"><span class="eyebrow-bar"></span>Pattern we've worked before</p>
+    <div class="proof-card">
+      <div class="proof-quote">
+        <p>
+          Feeld, a product company with a technical founder in a similar spot, brought us in for a scoped sprint. One workshop, a few advisory calls, an Organizational Context Architecture pass, and a Strategic Operations Framework their team kept using after we left.
+        </p>
+        <p class="proof-footnote">
+          The goal was not to rip out the AI. The goal was to put every piece of the product on the layer where it belonged, so the roadmap stopped fighting itself.
+        </p>
+      </div>
+      <aside class="proof-meta">
+        <dl>
+          <div>
+            <dt>Client</dt>
+            <dd>Feeld</dd>
+          </div>
+          <div>
+            <dt>Buyer</dt>
+            <dd>Andrew Santus, CTO</dd>
+          </div>
+          <div>
+            <dt>Shape</dt>
+            <dd>Scoped sprint, workshop, advisory, OCA, SOF</dd>
+          </div>
+          <div>
+            <dt>Why it maps</dt>
+            <dd>Product company. Technical founder. Operationalizing AI inside their own stack.</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="paper">
+  <div class="wrap paper-grid">
+    <div>
+      <p class="eyebrow"><span class="eyebrow-bar"></span>Relevant paper</p>
+      <h2>Interpretable Context Methodology.</h2>
+      <p>
+        The structural argument for how to organize an agent's context so the matching logic is readable by a human, reproducible across runs, and debuggable when a specific recommendation is wrong. For a matching-platform team, that is the difference between a demo and a product.
+      </p>
+      <p class="paper-links">
+        <a href="https://github.com/RinDig/Interpretable-Context-Methodology-ICM-" target="_blank" rel="noopener">
+          github.com/RinDig/Interpretable-Context-Methodology-ICM-
+          <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" focusable="false"><path d="M6 3h7v7M13 3 5 11M3 6v7h7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <span class="paper-meta">Submitted to ACM TiiS. MIT license.</span>
+      </p>
+    </div>
+    <div class="paper-code" aria-hidden="true">
+<pre><code>L0/  identity
+L1/  principles
+L2/  stage-contracts
+L3/  reference (reusable)
+L4/  working/
+     ├─ match.py
+     ├─ rules.json
+     └─ llm-calls/</code></pre>
+    </div>
+  </div>
+</section>
+
+<section class="partner">
+  <div class="wrap">
+    <p class="partner-line">
+      For work that sits below the orchestration layer, Eduba partners with NLP Logix. NLP Logix has been in machine learning since 2011 and runs over 150 data scientists.
+    </p>
+    <p class="partner-aside">Jake also built an online community to 22,000 members in five weeks.</p>
+  </div>
+</section>
+
+<section class="cta" id="book">
+  <div class="wrap cta-box">
+    <div>
+      <p class="eyebrow eyebrow-dark"><span class="eyebrow-bar"></span>The ask</p>
+      <h2>Thirty minutes with Matt.</h2>
+      <p class="cta-lede">
+        Bring one match that fired badly and one match you're proud of. We'll walk through both and tell you which layer each belongs on.
+      </p>
+    </div>
+    <div class="cta-actions">
+      <a class="btn btn-accent" href="https://calendly.com/thecro-eduba/30min" target="_blank" rel="noopener">
+        calendly.com/thecro-eduba/30min
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M3 8h9M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <p class="cta-signoff">
+        Matt Creamer, CRO.<br />
+        Eduba.
+      </p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer" role="contentinfo">
+  <div class="wrap footer-inner">
+    <p class="footer-prepared">Prepared by Eduba. <a href="https://eduba.io" target="_blank" rel="noopener">eduba.io</a></p>
+    <p class="footer-note">Page built ahead of eMerge Americas 2026, Booth SS36. Confidence on extracted brand tokens: low. Tokens will be replaced if Matt captures a real brand reference at the booth.</p>
+  </div>
+</footer>
+
+</body>
+</html>
